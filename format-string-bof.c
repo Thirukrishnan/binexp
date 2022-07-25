@@ -17,3 +17,6 @@ printf("You won maara!");
 	}
 	
 }
+
+
+#exploit is %100c
